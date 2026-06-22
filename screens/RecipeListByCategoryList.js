@@ -12,14 +12,21 @@ import { RECIPES } from "../data/recipes";
 import RecipeCard from "../components/RecipeCard";
 import { useState } from "react";
 import PressableCard from "../components/PressableCard";
+import { useRoute } from "@react-navigation/native";
+import { useEffect } from "react";
 
-const RecipeListScreen = () => {
+const RecipeListByCategory = () => {
+  const { recipeCategory } = useRoute().params;
   const navigation = useNavigation();
   const [query, setQuery] = useState("");
   const { width, height } = useWindowDimensions();
+  useEffect(() => {
+    navigation.setOptions({ title: recipeCategory });
+  }, []);
   const numColumns = width > height ? 3 : 2;
 
-  const filtered = RECIPES.filter((item) =>
+  const byCategory = RECIPES.filter((item) => item.category === recipeCategory);
+  const filtered = byCategory.filter((item) =>
     item.name.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -74,4 +81,4 @@ const styles = StyleSheet.create({
   empty: { textAlign: "center", color: "#6478b", marginTop: 40 },
 });
 
-export default RecipeListScreen;
+export default RecipeListByCategory;
