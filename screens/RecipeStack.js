@@ -96,7 +96,7 @@ const RecipeStack = () => {
 };
 
 const styles = StyleSheet.create({
-  diceIcon: { width: 50, height: 50 },
+  diceIcon: { width: 40, height: 40 },
 });
 
 export default RecipeStack;
