@@ -1,6 +1,16 @@
-import { View, Text, StyleSheet, Image, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Platform,
+  Pressable,
+} from "react-native";
+import { useFavorites } from "../../context/FavoritesContext";
 
 const RecipeCard = ({ recipe }) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+
   return (
     <View style={styles.card}>
       <Image style={styles.image} source={{ uri: recipe.thumb }} />
@@ -10,6 +20,14 @@ const RecipeCard = ({ recipe }) => {
         </Text>
         <Text style={styles.category}>{recipe.category}</Text>
         <Text style={styles.area}>{recipe.area ?? "unknown"}</Text>
+        <Pressable
+          style={styles.pressableHearts}
+          onPress={() => toggleFavorite(recipe.id)}
+        >
+          <Text style={{ fontSize: 20 }}>
+            {isFavorite(recipe.id) ? "❤️" : "🤍"}
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -58,6 +76,11 @@ const styles = StyleSheet.create({
     top: 8,
     right: 4,
     borderRadius: 4,
+  },
+  pressableHearts: {
+    position: "absolute",
+    top: 4,
+    left: 4,
   },
 });
 

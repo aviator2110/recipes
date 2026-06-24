@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
