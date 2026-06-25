@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import FavoritesScreen from "./FavoritesScreen";
 import RecipeStack from "./RecipeStack";
+import FavoriteRecipesStack from "./FavoriteRecipesStack"
 import { useFavorites } from "../context/FavoritesContext";
 import { Ionicons } from "@expo/vector-icons";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
@@ -42,7 +43,7 @@ const Tabs = () => {
       />
       <Tab.Screen
         name="Favorites"
-        component={FavoritesScreen}
+        component={FavoriteRecipesStack}
         options={{
           tabBarBadge: favorites.length || undefined,
           title: "Избранное",
