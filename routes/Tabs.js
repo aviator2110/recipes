@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import FavoritesScreen from "./FavoritesScreen";
+import FavoritesScreen from "../screens/FavoritesScreen";
 import RecipeStack from "./RecipeStack";
 import FavoriteRecipesStack from "./FavoriteRecipesStack"
 import { useFavorites } from "../context/FavoritesContext";

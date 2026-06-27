@@ -1,9 +1,9 @@
-import RecipeListScreen from "./RecipeListScreen";
-import RecipeDetailsScreen from "./RecipeDetailScreen";
+import RecipeListScreen from "../screens/RecipeListScreen";
+import RecipeDetailsScreen from "../screens/RecipeDetailScreen";
 import { Image, Pressable, Text, View, StyleSheet } from "react-native";
 import { RECIPES } from "../data/recipes";
-import RecipeListByCategory from "./RecipeListByCategoryList";
-import AboutAppScreen from "./AboutAppScreen";
+import RecipeListByCategory from "../screens/RecipeListByCategoryList";
+import AboutAppScreen from "../screens/AboutAppScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator();

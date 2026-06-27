@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -12,18 +12,48 @@ import { useRoute } from "@react-navigation/native";
 import { RECIPES } from "../data/recipes";
 
 const RecipeDetailsScreen = () => {
-  const { recipeId } = useRoute().params;
-  const recipe = RECIPES.find((item) => recipeId === item.id);
+  const { recipe } = useRoute().params;
+  console.log(recipe, "recipe");
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({ title: recipe.name });
   }, [recipe]);
 
-  const openNext = () => {
-    const i = RECIPES.findIndex((r) => r.id === recipe.id);
-    const next = RECIPES[i + 1] % RECIPES.length;
-    navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
+  const [full, setFull] = useState();
+  const [instructionsAreFull, setInstructionsAreFull] = useState(false);
+
+  const instructions = recipe.instructions;
+  const smallInstructions = instructions.slice(0, 200);
+
+  const getRecipe = () => {
+    fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe.id}`)
+      .then((r) => r.json())
+      .then((j) => setFull(j.meals[0]))
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
+  useEffect(() => {
+    getRecipe();
+  }, [recipe.id]);
+
+  const ingredients = [];
+
+  if (full) {
+    for (let i = 1; i <= 20; i++) {
+      const ing = full["strIngredient" + i];
+      const mea = full["strMeasure" + i];
+
+      if (ing && ing.trim()) ingredients.push(`${ing} = ${mea}`);
+    }
+  }
+
+  // const openNext = () => {
+  //   const i = RECIPES.findIndex((r) => r.id === recipe.id);
+  //   const next = RECIPES[i + 1] % RECIPES.length;
+  //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
+  // };
 
   return (
     <ScrollView style={styles.screen}>
@@ -33,9 +63,21 @@ const RecipeDetailsScreen = () => {
         <Text style={styles.meta}>Категория: {recipe.category}</Text>
         <Text style={styles.meta}>Страна: {recipe.area}</Text>
         <Text style={styles.section}>Ингредиенты:</Text>
-        <Text style={styles.text}>
-          * Заглушка - настоящие ингредиенты придут с АПИ в Модуле 5
-        </Text>
+        {ingredients.map((t) => {
+          return (
+            <Text key={t} style={styles.text}>
+              {t}
+            </Text>
+          );
+        })}
+        <Text style={{ marginTop: 10, color: '#C0C0C0' }}>Инструкции: {instructionsAreFull ? instructions : smallInstructions}</Text>
+        {instructions.length < 200 ? (
+          <></>
+        ) : (
+          <Pressable onPress={() => setInstructionsAreFull(prev => !prev)}>
+            <Text>{instructionsAreFull ? "Show less" : "Show more"}</Text>
+          </Pressable>
+        )}
       </View>
       <Pressable
         style={styles.pressable}

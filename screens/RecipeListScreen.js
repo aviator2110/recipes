@@ -1,26 +1,62 @@
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
   TextInput,
   useWindowDimensions,
   View,
+  Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { RECIPES } from "../data/recipes";
 import RecipeCard from "../components/RecipeCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PressableCard from "../components/PressableCard";
 
 const RecipeListScreen = () => {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
   const [query, setQuery] = useState("");
   const { width, height } = useWindowDimensions();
   const numColumns = width > height ? 3 : 2;
 
   const filtered = RECIPES.filter((item) =>
-    item.name.toLowerCase().includes(query.toLowerCase()),
+    item.name.toLowerCase().includes(query.toLowerCase())
   );
+
+  const getMeals = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(
+        `https://themealdb.com/api/json/v1/1/search.php?s=${query}`
+      );
+      const json = await res.json();
+      const mapped = (json.meals || []).map((m) => ({
+        id: m.idMeal,
+        name: m.strMeal,
+        category: m.strCategory,
+        area: m.strArea,
+        thumb: m.strMealThumb,
+        instructions: m.strInstructions,
+      }));
+      setRecipes(mapped);
+    } catch (err) {
+      setError("Нет сети");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      getMeals();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [query]);
 
   return (
     <View style={styles.screen}>
@@ -30,24 +66,55 @@ const RecipeListScreen = () => {
         placeholderTextColor={"#94a3b8"}
         style={styles.search}
       />
-      <FlatList
-        data={filtered}
-        key={numColumns}
-        numColumns={numColumns}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 6 }}
-        renderItem={({ item }) => (
-          <PressableCard
-            onPress={() => {
-              navigation.navigate("RecipeDetail", { recipeId: item.id });
-            }}
-            style={{ flex: 1 / numColumns, padding: 7 }}
+      {loading ? (
+        <ActivityIndicator
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          size={"large"}
+          color="#61DAFB"
+        />
+      ) : error ? (
+        <View style={{ flex: 1, alignItems: "center" }}>
+          <Text
+            style={{ textAlign: "center", marginTop: 40, color: "#FF0000" }}
           >
-            <RecipeCard recipe={item} />
-          </PressableCard>
-        )}
-        ListEmptyComponent={<Text style={styles.empty}>Nothing is found</Text>}
-      />
+            {error}
+          </Text>
+          <Pressable
+            style={{
+              marginTop: 20,
+              padding: 20,
+              backgroundColor: "#73C2FB",
+              borderRadius: 12,
+            }}
+            onPress={() => {
+              getMeals();
+            }}
+          >
+            <Text>Повторить</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <FlatList
+          data={recipes}
+          key={numColumns}
+          numColumns={numColumns}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 6 }}
+          renderItem={({ item }) => (
+            <PressableCard
+              onPress={() => {
+                navigation.navigate("RecipeDetail", { recipe: item });
+              }}
+              style={{ flex: 1 / numColumns, padding: 7 }}
+            >
+              <RecipeCard recipe={item} />
+            </PressableCard>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.empty}>Nothing is found</Text>
+          }
+        />
+      )}
     </View>
   );
 };
