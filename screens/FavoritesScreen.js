@@ -18,9 +18,8 @@ const FavoritesScreen = () => {
   const [query, setQuery] = useState("");
   const { width, height } = useWindowDimensions();
   const numColumns = width > height ? 3 : 2;
-  const { isFavorite } = useFavorites();
+  const { favorites } = useFavorites();
 
-  const favorites = RECIPES.filter((item) => isFavorite(item.id));
   const filtered = favorites.filter((item) =>
     item.name.toLowerCase().includes(query.toLowerCase())
   );

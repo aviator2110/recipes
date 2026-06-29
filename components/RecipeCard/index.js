@@ -22,7 +22,7 @@ const RecipeCard = ({ recipe }) => {
         <Text style={styles.area}>{recipe.area ?? "unknown"}</Text>
         <Pressable
           style={styles.pressableHearts}
-          onPress={() => toggleFavorite(recipe.id)}
+          onPress={() => toggleFavorite(recipe)}
         >
           <Text style={{ fontSize: 20 }}>
             {isFavorite(recipe.id) ? "❤️" : "🤍"}

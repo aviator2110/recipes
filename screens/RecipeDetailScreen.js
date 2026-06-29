@@ -3,17 +3,16 @@ import {
   Image,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
-import { RECIPES } from "../data/recipes";
 
 const RecipeDetailsScreen = () => {
   const { recipe } = useRoute().params;
-  console.log(recipe, "recipe");
   const navigation = useNavigation();
   useEffect(() => {
     navigation.setOptions({ title: recipe.name });
@@ -55,6 +54,15 @@ const RecipeDetailsScreen = () => {
   //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
   // };
 
+  const onShare = async () => {
+    try {
+      const result = await Share.share({
+        title: 'Sharing recipe',
+        message: `Готовлю: ${recipe.name} (${recipe.area})`,
+      });
+    } catch (err) {}
+  };
+
   return (
     <ScrollView style={styles.screen}>
       <Image source={{ uri: recipe.thumb }} style={styles.image} />
@@ -76,7 +84,9 @@ const RecipeDetailsScreen = () => {
             <></>
           ) : (
             <Pressable onPress={() => setInstructionsAreFull((prev) => !prev)}>
-              <Text style={{ color: "#181717" }}>{instructionsAreFull ? "   Show less" : "...Show more"}</Text>
+              <Text style={{ color: "#181717" }}>
+                {instructionsAreFull ? "   Show less" : "...Show more"}
+              </Text>
             </Pressable>
           )}
         </Text>
@@ -90,6 +100,9 @@ const RecipeDetailsScreen = () => {
         }}
       >
         <Text>Ещё из этой категории</Text>
+      </Pressable>
+      <Pressable style={styles.pressable} onPress={onShare}>
+        <Text>Поделиться рецептом</Text>
       </Pressable>
     </ScrollView>
   );
@@ -109,7 +122,12 @@ const styles = StyleSheet.create({
     color: "#1e29eb",
   },
   text: { fontSize: 15, color: "#64748b", marginTop: 40 },
-  pressable: { alignItems: "center", backgroundColor: "#759ddd", padding: 10 },
+  pressable: {
+    marginTop: 8,
+    alignItems: "center",
+    backgroundColor: "#759ddd",
+    padding: 10,
+  },
 });
 
 export default RecipeDetailsScreen;
