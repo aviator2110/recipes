@@ -70,14 +70,16 @@ const RecipeDetailsScreen = () => {
             </Text>
           );
         })}
-        <Text style={{ marginTop: 10, color: '#C0C0C0' }}>Инструкции: {instructionsAreFull ? instructions : smallInstructions}</Text>
-        {instructions.length < 200 ? (
-          <></>
-        ) : (
-          <Pressable onPress={() => setInstructionsAreFull(prev => !prev)}>
-            <Text>{instructionsAreFull ? "Show less" : "Show more"}</Text>
-          </Pressable>
-        )}
+        <Text style={{ marginTop: 10, color: "#C0C0C0", fontSize: 18 }}>
+          Инструкции: {instructionsAreFull ? instructions : smallInstructions}
+          {instructions.length < 200 ? (
+            <></>
+          ) : (
+            <Pressable onPress={() => setInstructionsAreFull((prev) => !prev)}>
+              <Text style={{ color: "#181717" }}>{instructionsAreFull ? "   Show less" : "...Show more"}</Text>
+            </Pressable>
+          )}
+        </Text>
       </View>
       <Pressable
         style={styles.pressable}

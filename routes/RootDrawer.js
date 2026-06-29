@@ -11,7 +11,7 @@ const RootDrawer = () => {
       <Drawer.Screen
         name="Main"
         component={Tabs}
-        options={{ headerShown: false }}
+        options={{ headerShown: true }}
       />
       <Drawer.Screen name="About" component={AboutAppScreen} />
     </Drawer.Navigator>
