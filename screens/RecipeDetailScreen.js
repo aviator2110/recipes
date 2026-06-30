@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Linking,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
@@ -23,45 +24,56 @@ const RecipeDetailsScreen = () => {
 
   const instructions = recipe.instructions;
   const smallInstructions = instructions.slice(0, 200);
-
+  
   const getRecipe = () => {
     fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe.id}`)
-      .then((r) => r.json())
-      .then((j) => setFull(j.meals[0]))
-      .catch((err) => {
-        console.log(err);
-      });
+    .then((r) => r.json())
+    .then((j) => setFull(j.meals[0]))
+    .catch((err) => {
+      console.log(err);
+    });
   };
-
+  
   useEffect(() => {
     getRecipe();
   }, [recipe.id]);
-
+  
   const ingredients = [];
-
+  
   if (full) {
     for (let i = 1; i <= 20; i++) {
       const ing = full["strIngredient" + i];
       const mea = full["strMeasure" + i];
-
+      
       if (ing && ing.trim()) ingredients.push(`${ing} = ${mea}`);
     }
   }
-
+  
   // const openNext = () => {
-  //   const i = RECIPES.findIndex((r) => r.id === recipe.id);
-  //   const next = RECIPES[i + 1] % RECIPES.length;
-  //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
-  // };
+    //   const i = RECIPES.findIndex((r) => r.id === recipe.id);
+    //   const next = RECIPES[i + 1] % RECIPES.length;
+    //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
+    // };
+    
+    const onShare = async () => {
+      try {
+        const result = await Share.share({
+          title: "Sharing recipe",
+          message: `Готовлю: ${recipe.name} (${recipe.area})`,
+        });
+      } catch (err) {}
+    };
+    
+    let youtube = '';
 
-  const onShare = async () => {
-    try {
-      const result = await Share.share({
-        title: 'Sharing recipe',
-        message: `Готовлю: ${recipe.name} (${recipe.area})`,
-      });
-    } catch (err) {}
-  };
+    if (full) {
+      youtube = full.strYoutube;
+    }
+    
+    const onLinkYoutube = () => {
+      Linking.openURL(youtube)
+  }
+        
 
   return (
     <ScrollView style={styles.screen}>
@@ -104,6 +116,13 @@ const RecipeDetailsScreen = () => {
       <Pressable style={styles.pressable} onPress={onShare}>
         <Text>Поделиться рецептом</Text>
       </Pressable>
+      {youtube ? (
+        <Pressable style={styles.pressable} onPress={onLinkYoutube}>
+          <Text>Youtube video</Text>
+        </Pressable>
+      ) : (
+        <></>
+      )}
     </ScrollView>
   );
 };
