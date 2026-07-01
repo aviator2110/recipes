@@ -80,6 +80,21 @@ const RecipeDetailsScreen = () => {
     Linking.openURL(youtube);
   };
 
+  const getCategoryObj = async () => {
+    const res = await fetch(
+      `https://www.themealdb.com/api/json/v1/1/categories.php`,
+    );
+    const json = await res.json();
+    const mapped = (json.categories || []).map((c) => ({
+      id: c.idCategory,
+      name: c.strCategory,
+      thumb: c.strCategoryThumb,
+    }));
+    const categoryObj = mapped.find(i => i.name === recipe.category)
+    console.log(categoryObj)
+    return categoryObj
+  };
+
   return (
     <ScrollView style={styles.screen}>
       <Image source={{ uri: recipe.thumb }} style={styles.image} />
@@ -112,7 +127,7 @@ const RecipeDetailsScreen = () => {
         style={styles.pressable}
         onPress={() => {
           navigation.navigate("RecipeListByCategory", {
-            recipeCategory: recipe.category,
+            category: getCategoryObj(),
           });
         }}
       >
