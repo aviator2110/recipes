@@ -16,17 +16,47 @@ import { useRoute } from "@react-navigation/native";
 import { useEffect } from "react";
 
 const RecipeListByCategory = () => {
-  const { recipeCategory } = useRoute().params;
+  const { category } = useRoute().params;
   const navigation = useNavigation();
   const [query, setQuery] = useState("");
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { width, height } = useWindowDimensions();
   useEffect(() => {
-    navigation.setOptions({ title: recipeCategory });
+    navigation.setOptions({ title: category.name });
   }, []);
   const numColumns = width > height ? 3 : 2;
 
-  const byCategory = RECIPES.filter((item) => item.category === recipeCategory);
-  const filtered = byCategory.filter((item) =>
+  const getMeals = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?c=Seafood`
+      )
+      const json = await res.json()
+      const mapped = (json.meals || []).map(m => ({
+        id: m.idMeal,
+        name: m.strMeal,
+        category: category.name,
+        area: m.strArea,
+        thumb: m.strMealThumb,
+      }))
+
+      setMeals(mapped)
+    } catch(err) {
+      setError(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  useEffect(() => {
+    getMeals()
+  }, [])
+
+  const filtered = meals.filter((item) =>
     item.name.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -47,7 +77,7 @@ const RecipeListByCategory = () => {
         renderItem={({ item }) => (
           <PressableCard
             onPress={() => {
-              navigation.navigate("RecipeDetail", { recipeId: item.id });
+              navigation.navigate("RecipeDetail", { recipe: item });
             }}
             style={{ flex: 1 / numColumns, padding: 7 }}
           >

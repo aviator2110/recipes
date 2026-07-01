@@ -40,8 +40,7 @@ const RecipeListScreen = () => {
         name: m.strMeal,
         category: m.strCategory,
         area: m.strArea,
-        thumb: m.strMealThumb,
-        instructions: m.strInstructions,
+        thumb: m.strMealThumb
       }));
       setRecipes(mapped);
     } catch (err) {

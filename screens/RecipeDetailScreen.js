@@ -20,60 +20,65 @@ const RecipeDetailsScreen = () => {
   }, [recipe]);
 
   const [full, setFull] = useState();
+  const [instructions, setInstructions] = useState("");
+  const [smallInstructions, setSmallInstructions] = useState("");
   const [instructionsAreFull, setInstructionsAreFull] = useState(false);
 
-  const instructions = recipe.instructions;
-  const smallInstructions = instructions.slice(0, 200);
-  
   const getRecipe = () => {
     fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipe.id}`)
-    .then((r) => r.json())
-    .then((j) => setFull(j.meals[0]))
-    .catch((err) => {
-      console.log(err);
-    });
+      .then((r) => r.json())
+      .then((j) => setFull(j.meals[0]))
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  
+
   useEffect(() => {
     getRecipe();
   }, [recipe.id]);
-  
+
   const ingredients = [];
-  
+
   if (full) {
     for (let i = 1; i <= 20; i++) {
       const ing = full["strIngredient" + i];
       const mea = full["strMeasure" + i];
-      
+
       if (ing && ing.trim()) ingredients.push(`${ing} = ${mea}`);
     }
   }
-  
-  // const openNext = () => {
-    //   const i = RECIPES.findIndex((r) => r.id === recipe.id);
-    //   const next = RECIPES[i + 1] % RECIPES.length;
-    //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
-    // };
-    
-    const onShare = async () => {
-      try {
-        const result = await Share.share({
-          title: "Sharing recipe",
-          message: `Готовлю: ${recipe.name} (${recipe.area})`,
-        });
-      } catch (err) {}
-    };
-    
-    let youtube = '';
 
+  useEffect(() => {
     if (full) {
-      youtube = full.strYoutube;
+      setInstructions(full.strInstructions);
+      setSmallInstructions(full.strInstructions.slice(0, 200));
     }
-    
-    const onLinkYoutube = () => {
-      Linking.openURL(youtube)
+  }, [full]);
+
+  // const openNext = () => {
+  //   const i = RECIPES.findIndex((r) => r.id === recipe.id);
+  //   const next = RECIPES[i + 1] % RECIPES.length;
+  //   navigation.push("RecipeDetail", { recipeId: RECIPES[next].id });
+  // };
+
+  const onShare = async () => {
+    try {
+      const result = await Share.share({
+        title: "Sharing recipe",
+        message: `Готовлю: ${recipe.name} (${recipe.area})`,
+      });
+    } catch (err) {}
+  };
+
+  let youtube = "";
+
+  if (full) {
+    youtube = full.strYoutube;
   }
-        
+
+  const onLinkYoutube = () => {
+    Linking.openURL(youtube);
+  };
 
   return (
     <ScrollView style={styles.screen}>
