@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { RECIPES } from "../data/recipes";
@@ -34,9 +35,14 @@ const RecipeListScreen = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(
-        `https://themealdb.com/api/json/v1/1/search.php?s=${query}`,
-      );
+      const res =
+        selectedCountry === "All"
+          ? await fetch(
+              `https://themealdb.com/api/json/v1/1/search.php?s=${query}`
+            )
+          : await fetch(
+              `https://themealdb.com/api/json/v1/1/filter.php?a=${selectedCountry}`
+            );
       const json = await res.json();
       const mapped = (json.meals || []).map((m) => ({
         id: m.idMeal,
@@ -56,7 +62,7 @@ const RecipeListScreen = () => {
   useEffect(() => {
     (async () => {
       const res = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/list.php?a=list",
+        "https://www.themealdb.com/api/json/v1/1/list.php?a=list"
       );
       const json = await res.json();
       const mapped = (json.meals || []).map((i) => ({
@@ -72,7 +78,7 @@ const RecipeListScreen = () => {
       getMeals();
     }, 500);
     return () => clearTimeout(timeout);
-  }, [query]);
+  }, [query, selectedCountry]);
 
   return (
     <View style={styles.screen}>
@@ -82,11 +88,39 @@ const RecipeListScreen = () => {
         placeholderTextColor={"#94a3b8"}
         style={styles.search}
       />
-      {countries.map(i => (
-        <Pressable>
-          <Text>{i.country}</Text>
-        </Pressable>
-      ))}
+      <Pressable
+        onPress={() => {
+          setIsOpen((prev) => !prev);
+        }}
+      >
+        <Text>{isOpen ? "🔍 Close filter" : "🔍 Filter"}</Text>
+      </Pressable>
+      {isOpen ? (
+        <View style={styles.filterContainer}>
+          <Pressable onPress={() => {
+                  setSelectedCountry("All");
+                  setIsOpen(false);
+                }}>
+            <Text>All</Text>
+          </Pressable>
+
+          <ScrollView>
+            {countries.map((item) => (
+              <Pressable
+                key={item.area}
+                onPress={() => {
+                  setSelectedCountry(item.area);
+                  setIsOpen(false);
+                }}
+              >
+                <Text>{item.area}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      ) : (
+        <></>
+      )}
       {loading ? (
         <ActivityIndicator
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
