@@ -21,18 +21,21 @@ const RecipeListScreen = () => {
   const navigation = useNavigation();
   const [query, setQuery] = useState("");
   const { width, height } = useWindowDimensions();
+  const [isOpen, setIsOpen] = useState(false);
+  const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("All");
   const numColumns = width > height ? 3 : 2;
 
-  const filtered = RECIPES.filter((item) =>
-    item.name.toLowerCase().includes(query.toLowerCase())
-  );
+  // const filtered = RECIPES.filter((item) =>
+  //   item.name.toLowerCase().includes(query.toLowerCase()),
+  // );
 
   const getMeals = async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await fetch(
-        `https://themealdb.com/api/json/v1/1/search.php?s=${query}`
+        `https://themealdb.com/api/json/v1/1/search.php?s=${query}`,
       );
       const json = await res.json();
       const mapped = (json.meals || []).map((m) => ({
@@ -40,7 +43,7 @@ const RecipeListScreen = () => {
         name: m.strMeal,
         category: m.strCategory,
         area: m.strArea,
-        thumb: m.strMealThumb
+        thumb: m.strMealThumb,
       }));
       setRecipes(mapped);
     } catch (err) {
@@ -49,6 +52,20 @@ const RecipeListScreen = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(
+        "https://www.themealdb.com/api/json/v1/1/list.php?a=list",
+      );
+      const json = await res.json();
+      const mapped = (json.meals || []).map((i) => ({
+        area: i.strArea,
+        country: i.strCountry,
+      }));
+      setCountries(mapped);
+    })();
+  }, []);
 
   useEffect(() => {
     let timeout = setTimeout(() => {
@@ -65,6 +82,11 @@ const RecipeListScreen = () => {
         placeholderTextColor={"#94a3b8"}
         style={styles.search}
       />
+      {countries.map(i => (
+        <Pressable>
+          <Text>{i.country}</Text>
+        </Pressable>
+      ))}
       {loading ? (
         <ActivityIndicator
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
